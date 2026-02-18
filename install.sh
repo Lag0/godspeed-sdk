@@ -164,10 +164,29 @@ detect_os() {
 
 # ─── Bun ──────────────────────────────────────────────────────────────────────
 
+RUNTIME=""
+
 check_bun() {
     if command -v bun &>/dev/null; then
+        RUNTIME="bun"
         ui_success "Bun $(bun --version) found"
         return 0
+    fi
+    return 1
+}
+
+check_node() {
+    if command -v node &>/dev/null; then
+        local node_ver
+        node_ver="$(node --version | sed 's/^v//' | cut -d. -f1)"
+        if [[ "$node_ver" -ge 18 ]]; then
+            RUNTIME="node"
+            ui_success "Node.js $(node --version) found"
+            return 0
+        else
+            ui_warn "Node.js $(node --version) is too old (need v18+)"
+            return 1
+        fi
     fi
     return 1
 }
@@ -177,6 +196,7 @@ install_bun() {
 
     if [[ "$DRY_RUN" == "1" ]]; then
         ui_info "[dry-run] Would install Bun via bun.sh"
+        RUNTIME="bun"
         return 0
     fi
 
@@ -202,6 +222,7 @@ install_bun() {
         exit 1
     fi
 
+    RUNTIME="bun"
     ui_success "Bun $(bun --version) installed"
 }
 
@@ -289,20 +310,35 @@ build_sdk() {
     local log
     log="$(mktempfile)"
 
-    if [[ "$VERBOSE" == "1" ]]; then
-        bun install --cwd "${INSTALL_DIR}" 2>&1 | tee "$log"
-    else
-        bun install --cwd "${INSTALL_DIR}" --frozen-lockfile >"$log" 2>&1 \
-            || bun install --cwd "${INSTALL_DIR}" >"$log" 2>&1
-    fi
-    ui_success "Dependencies installed"
+    if [[ "$RUNTIME" == "bun" ]]; then
+        if [[ "$VERBOSE" == "1" ]]; then
+            bun install --cwd "${INSTALL_DIR}" 2>&1 | tee "$log"
+        else
+            bun install --cwd "${INSTALL_DIR}" --frozen-lockfile >"$log" 2>&1 \
+                || bun install --cwd "${INSTALL_DIR}" >"$log" 2>&1
+        fi
+        ui_success "Dependencies installed"
 
-    ui_info "Building CLI..."
-    bun build \
-        "${INSTALL_DIR}/src/cli.ts" \
-        --outdir "${INSTALL_DIR}/dist" \
-        --target node \
-        --minify >/dev/null 2>&1
+        ui_info "Building CLI..."
+        bun build \
+            "${INSTALL_DIR}/src/cli.ts" \
+            --outdir "${INSTALL_DIR}/dist" \
+            --target node \
+            --minify >/dev/null 2>&1
+    elif [[ "$RUNTIME" == "node" ]]; then
+        cd "${INSTALL_DIR}"
+        if [[ "$VERBOSE" == "1" ]]; then
+            npm install 2>&1 | tee "$log"
+        else
+            npm install >"$log" 2>&1
+        fi
+        ui_success "Dependencies installed"
+
+        ui_info "Building CLI..."
+        npx -y tsc --outDir "${INSTALL_DIR}/dist" >/dev/null 2>&1 || {
+            ui_warn "TypeScript compile skipped (pre-built dist may be used)"
+        }
+    fi
 
     ui_success "CLI built (dist/cli.js)"
 }
@@ -346,6 +382,7 @@ check_path() {
 show_install_plan() {
     echo -e "${MUTED}Install plan:${NC}"
     ui_kv "OS" "$OS ($(uname -m))"
+    ui_kv "Runtime" "${RUNTIME:-auto-detect}"
     ui_kv "Install directory" "$INSTALL_DIR"
     ui_kv "CLI launcher" "$BIN_LINK"
     ui_kv "Repository" "$REPO_URL"
@@ -382,8 +419,12 @@ main() {
         install_git
     fi
 
+    # Try Bun first, then Node, fallback to installing Bun
     if ! check_bun; then
-        install_bun
+        if ! check_node; then
+            ui_info "No JavaScript runtime found. Installing Bun..."
+            install_bun
+        fi
     fi
 
     # [3/4] Installing Godspeed SDK

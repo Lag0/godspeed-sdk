@@ -4,19 +4,19 @@ import { GodspeedValidationError } from "./errors.js";
 import {
   CreateTaskRequestSchema,
   DuplicateListRequestSchema,
-  DuplicateListResponseSchema,
+  ListSchema,
   ListsResponseSchema,
   ListTasksQuerySchema,
   SignInRequestSchema,
   SignInResponseSchema,
   TaskResponseSchema,
+  TaskSchema,
   TasksResponseSchema,
   UpdateTaskRequestSchema,
 } from "./schemas.js";
 import type {
   CreateTaskRequest,
   DuplicateListRequest,
-  DuplicateListResponse,
   List,
   ListsResponse,
   ListTasksQuery,
@@ -27,6 +27,7 @@ import type {
   TasksResponse,
   UpdateTaskRequest,
 } from "./types.js";
+import client from "undici-types/client.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -77,9 +78,9 @@ export const createTask = async (
     request,
     "createTask:request",
   );
-  const raw = await client.post("/tasks", body);
-  const parsed = parseOrThrow(TaskResponseSchema, raw, "createTask:response");
-  return parsed.task;
+  const raw = await client.post("/tasks", body) as Record<string, unknown>;
+  const item = raw["todo_item"] ?? raw["task"] ?? raw;
+  return parseOrThrow(TaskSchema, item, "createTask:response");
 };
 
 export const listTasks = async (
@@ -122,9 +123,9 @@ export const updateTask = async (
     request,
     "updateTask:request",
   );
-  const raw = await client.patch(`/tasks/${taskId}`, body);
-  const parsed = parseOrThrow(TaskResponseSchema, raw, "updateTask:response");
-  return parsed.task;
+  const raw = await client.patch(`/tasks/${taskId}`, body) as Record<string, unknown>;
+  const item = raw["todo_item"] ?? raw["task"] ?? raw;
+  return parseOrThrow(TaskSchema, item, "updateTask:response");
 };
 
 export const deleteTask = async (
@@ -147,7 +148,7 @@ export const duplicateList = async (
   client: GodspeedClient,
   listId: string,
   request?: DuplicateListRequest,
-): Promise<DuplicateListResponse> => {
+): Promise<List> => {
   const body = request
     ? parseOrThrow(
         DuplicateListRequestSchema,
@@ -155,10 +156,13 @@ export const duplicateList = async (
         "duplicateList:request",
       )
     : undefined;
-  const raw = await client.post(`/lists/${listId}/duplicate`, body);
-  return parseOrThrow(
-    DuplicateListResponseSchema,
-    raw,
-    "duplicateList:response",
-  );
+  const raw = await client.post(`/lists/${listId}/duplicate`, body) as Record<string, unknown>;
+  if (raw["success"] === false) {
+    throw new GodspeedValidationError(
+      new ZodError([]),
+      `duplicateList: ${raw["message"] ?? "Unknown error"}`,
+    );
+  }
+  const item = raw["list"] ?? raw;
+  return parseOrThrow(ListSchema, item, "duplicateList:response");
 };

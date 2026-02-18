@@ -420,25 +420,19 @@ const run = async (): Promise<void> => {
         process.stdout.write(TASKS_HELP + "\n");
         return;
       }
-      const { flags: subFlags, positional: subPositional } = parseArgs([
-        subcommand,
-        ...rest,
-      ]);
-      const sub = subPositional[0];
-      const subArgs = subPositional.slice(1);
 
-      if (sub === "list") {
-        await handleTasksList(subFlags);
-      } else if (sub === "get") {
-        await handleTasksGet(subArgs);
-      } else if (sub === "create") {
-        await handleTasksCreate(subFlags);
-      } else if (sub === "update") {
-        await handleTasksUpdate(subArgs, subFlags);
-      } else if (sub === "delete") {
-        await handleTasksDelete(subArgs);
+      if (subcommand === "list") {
+        await handleTasksList(flags);
+      } else if (subcommand === "get") {
+        await handleTasksGet(rest);
+      } else if (subcommand === "create") {
+        await handleTasksCreate(flags);
+      } else if (subcommand === "update") {
+        await handleTasksUpdate(rest, flags);
+      } else if (subcommand === "delete") {
+        await handleTasksDelete(rest);
       } else {
-        printError(`Unknown tasks subcommand: ${sub ?? "(none)"}`);
+        printError(`Unknown tasks subcommand: ${subcommand}`);
         process.stdout.write(TASKS_HELP + "\n");
         process.exit(1);
       }
@@ -447,19 +441,13 @@ const run = async (): Promise<void> => {
         process.stdout.write(LISTS_HELP + "\n");
         return;
       }
-      const { flags: subFlags, positional: subPositional } = parseArgs([
-        subcommand,
-        ...rest,
-      ]);
-      const sub = subPositional[0];
-      const subArgs = subPositional.slice(1);
 
-      if (sub === "list") {
+      if (subcommand === "list") {
         await handleListsList();
-      } else if (sub === "duplicate") {
-        await handleListsDuplicate(subArgs, subFlags);
+      } else if (subcommand === "duplicate") {
+        await handleListsDuplicate(rest, flags);
       } else {
-        printError(`Unknown lists subcommand: ${sub ?? "(none)"}`);
+        printError(`Unknown lists subcommand: ${subcommand}`);
         process.stdout.write(LISTS_HELP + "\n");
         process.exit(1);
       }
