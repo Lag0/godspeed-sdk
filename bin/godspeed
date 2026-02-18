@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# bin/godspeed — CLI launcher wrapper
+# Invokes the Godspeed CLI via Bun from the SDK source
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLI_ENTRY="$(cd "${SCRIPT_DIR}/.." && pwd)/src/cli.ts"
+
+if ! command -v bun &>/dev/null; then
+  echo '{"error":"Bun runtime not found. Install from https://bun.sh"}' >&2
+  exit 1
+fi
+
+exec bun run "${CLI_ENTRY}" "$@"

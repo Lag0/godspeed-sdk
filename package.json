@@ -1,0 +1,25 @@
+{
+  "name": "godspeed-sdk",
+  "version": "0.1.0",
+  "description": "Typed SDK and CLI for the Godspeed task management API",
+  "type": "module",
+  "bin": {
+    "godspeed": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "bun build src/cli.ts --outdir dist --target bun --minify",
+    "build:sdk": "bun build src/index.ts --outdir dist --target bun",
+    "build:node": "bun build src/cli.ts --outdir dist --target node --minify",
+    "build:sdk:node": "bun build src/index.ts --outdir dist --target node",
+    "lint": "bunx tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/bun": "latest",
+    "typescript": "^5.4.5"
+  }
+}
