@@ -39,7 +39,7 @@ export const TaskSchema = z.object({
   title: z.string(),
   notes: z.string().nullable().optional(),
   list_id: z.string().nullable().optional(),
-  is_complete: z.boolean(),
+  is_complete: z.boolean().optional().default(false),
   is_cleared: z.boolean().optional(),
   due_at: z.string().nullable().optional(),
   timeless_due_at: z.string().nullable().optional(),
