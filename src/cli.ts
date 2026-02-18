@@ -10,19 +10,54 @@ import {
   updateTask,
 } from "./endpoints.js";
 import { GodspeedError } from "./errors.js";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import * as readline from "node:readline";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const BASE_URL =
   process.env["GODSPEED_BASE_URL"] ?? "https://api.godspeedapp.com";
 
-const getToken = (): string => {
-  const token = process.env["GODSPEED_TOKEN"];
-  if (!token) {
-    printError("GODSPEED_TOKEN environment variable is not set.");
-    process.exit(1);
+const CONFIG_DIR = path.join(os.homedir(), ".godspeed-sdk");
+const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
+
+interface Config {
+  token?: string;
+}
+
+const loadConfig = (): Config => {
+  try {
+    if (fs.existsSync(CONFIG_FILE)) {
+      const content = fs.readFileSync(CONFIG_FILE, "utf-8");
+      return JSON.parse(content) as Config;
+    }
+  } catch {
+    // ignore
   }
-  return token;
+  return {};
+};
+
+const saveConfig = (config: Config): void => {
+  if (!fs.existsSync(CONFIG_DIR)) {
+    fs.mkdirSync(CONFIG_DIR, { recursive: true });
+  }
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+};
+
+const getToken = (): string => {
+  // 1. Env var
+  const envToken = process.env["GODSPEED_TOKEN"];
+  if (envToken) return envToken;
+
+  // 2. Config file
+  const config = loadConfig();
+  if (config.token) return config.token;
+
+  printError("GODSPEED_TOKEN environment variable is not set and no config found.");
+  printError("Run 'godspeed auth' to sign in, or set GODSPEED_TOKEN.");
+  process.exit(1);
 };
 
 // ─── Output helpers ───────────────────────────────────────────────────────────
@@ -148,6 +183,16 @@ SUBCOMMANDS
 
   duplicate <list_id>
     --name  (optional) New list name
+`.trim();
+
+const AUTH_HELP = `
+godspeed auth — Authenticate with Godspeed
+
+USAGE
+  godspeed auth [options]
+
+OPTIONS
+  --token <token>  Set token directly without prompt
 `.trim();
 
 // ─── Command handlers ─────────────────────────────────────────────────────────
@@ -320,6 +365,36 @@ const handleListsDuplicate = async (
   printJson(result);
 };
 
+const handleAuth = async (flags: Record<string, string | boolean>): Promise<void> => {
+  const tokenFlag = flag(flags, "token");
+  let token = tokenFlag;
+
+  if (!token) {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    try {
+      token = await new Promise<string>((resolve) => {
+        rl.question("Enter your Godspeed API token: ", (answer) => {
+          resolve(answer.trim());
+        });
+      });
+    } finally {
+      rl.close();
+    }
+  }
+
+  if (!token) {
+    printError("Token cannot be empty.");
+    process.exit(1);
+  }
+
+  saveConfig({ token });
+  printJson({ success: true, message: "Token saved to " + CONFIG_FILE });
+};
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 const run = async (): Promise<void> => {
@@ -334,7 +409,13 @@ const run = async (): Promise<void> => {
   }
 
   try {
-    if (command === "tasks") {
+    if (command === "auth") {
+      if (flags["help"]) {
+        process.stdout.write(AUTH_HELP + "\n");
+        return;
+      }
+      await handleAuth(flags);
+    } else if (command === "tasks") {
       if (!subcommand || flags["help"]) {
         process.stdout.write(TASKS_HELP + "\n");
         return;

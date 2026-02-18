@@ -16,7 +16,7 @@ NC='\033[0m'
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-REPO_URL="${GODSPEED_REPO_URL:-https://github.com/brunolago/godspeed-sdk.git}"
+REPO_URL="${GODSPEED_REPO_URL:-https://github.com/Lag0/godspeed-sdk.git}"
 INSTALL_DIR="${GODSPEED_INSTALL_DIR:-${HOME}/.godspeed-sdk}"
 BIN_DIR="${HOME}/.local/bin"
 BIN_LINK="${BIN_DIR}/godspeed"
