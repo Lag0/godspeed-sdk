@@ -1,11 +1,32 @@
 {
-  "name": "godspeed-sdk",
-  "version": "0.1.0",
+  "name": "@lag0/godspeed-sdk",
+  "version": "1.0.0",
   "description": "Typed SDK and CLI for the Godspeed task management API",
+  "author": "Bruno Lago",
+  "license": "MIT",
   "type": "module",
+  "homepage": "https://github.com/Lag0/godspeed-sdk#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lag0/godspeed-sdk.git"
+  },
+  "keywords": [
+    "godspeed",
+    "tasks",
+    "sdk",
+    "cli",
+    "api",
+    "agent-skill"
+  ],
+  "main": "./dist/index.js",
   "bin": {
     "godspeed": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "bin",
+    "skills"
+  ],
   "scripts": {
     "build": "bun build src/cli.ts --outdir dist --target bun --minify",
     "build:sdk": "bun build src/index.ts --outdir dist --target bun",
@@ -19,7 +40,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@types/bun": "latest",
+    "@types/bun": "^1.1.0",
     "typescript": "^5.4.5"
   }
 }
