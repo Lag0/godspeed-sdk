@@ -74,8 +74,8 @@ bun run test          # run tests
 
 ## Installer
 ```bash
-# Full install
-curl -fsSL https://godspeedapp.com/install.sh | bash
+# Full install (auto-detects Bun or Node 18+)
+curl -fsSL https://raw.githubusercontent.com/Lag0/godspeed-sdk/master/install.sh | bash
 
 # Dry run (preview only)
 bash install.sh --dry-run

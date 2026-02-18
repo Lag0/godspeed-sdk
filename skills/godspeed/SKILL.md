@@ -21,6 +21,7 @@ Interact with the [Godspeed](https://godspeedapp.com) task management API using 
 Use this skill when the user asks to:
 - List, create, get, update, or delete **tasks** in Godspeed
 - List or duplicate **lists** in Godspeed
+- **Authenticate** with the Godspeed API (`godspeed auth`)
 
 ## How to run commands
 
@@ -39,6 +40,9 @@ godspeed <command> <subcommand> [options]
 ## Quick examples
 
 ```bash
+# Authenticate (saves token to ~/.godspeed-sdk/config.json)
+bash skills/godspeed/scripts/godspeed-cli.sh auth
+
 # List incomplete tasks
 bash skills/godspeed/scripts/godspeed-cli.sh tasks list --status incomplete
 

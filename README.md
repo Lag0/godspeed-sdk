@@ -9,6 +9,8 @@ Typed TypeScript SDK, CLI, and Agent Skill for the [Godspeed](https://godspeedap
 
 Install via the installer script (works on macOS and Linux):
 
+The installer auto-detects **Bun** or **Node.js 18+** — no need to install a specific runtime.
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Lag0/godspeed-sdk/master/install.sh | bash
 ```
@@ -85,6 +87,7 @@ godspeed lists duplicate <list_id> --name "New Project"
 godspeed --help
 godspeed tasks --help
 godspeed lists --help
+godspeed auth --help
 ```
 
 ## Agent Integration

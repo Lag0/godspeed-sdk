@@ -89,3 +89,16 @@ godspeed lists list
 godspeed lists duplicate <list_id>
 godspeed lists duplicate <list_id> --name "My Copy"
 ```
+
+## Auth commands
+
+### Authenticate
+```bash
+# Interactive (prompts for token)
+godspeed auth
+
+# Direct (for scripts/CI)
+godspeed auth --token <your_token>
+```
+
+Saves your token to `~/.godspeed-sdk/config.json`. The `GODSPEED_TOKEN` environment variable always takes precedence over the config file.
