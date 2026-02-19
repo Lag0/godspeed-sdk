@@ -23,6 +23,10 @@ const BASE_URL =
 const CONFIG_DIR = path.join(os.homedir(), ".godspeed-sdk");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 
+/** Convert literal \n, \t, \\  in CLI strings to real characters. */
+const unescapeText = (s: string): string =>
+  s.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\\\/g, "\\");
+
 interface Config {
   token?: string;
 }
@@ -252,7 +256,7 @@ const handleTasksCreate = async (
     title,
     list_id: flag(flags, "list-id"),
     location: flag(flags, "location") as "start" | "end" | undefined,
-    notes: flag(flags, "notes"),
+    notes: flag(flags, "notes") ? unescapeText(flag(flags, "notes")!) : undefined,
     due_at: flag(flags, "due-at"),
     timeless_due_at: flag(flags, "timeless-due-at"),
     starts_at: flag(flags, "starts-at"),
@@ -298,7 +302,7 @@ const handleTasksUpdate = async (
   const client = createClient({ token: getToken(), baseUrl: BASE_URL });
   const task = await updateTask(client, taskId, {
     title: flag(flags, "title"),
-    notes: flag(flags, "notes"),
+    notes: flag(flags, "notes") ? unescapeText(flag(flags, "notes")!) : undefined,
     due_at: flag(flags, "due-at"),
     timeless_due_at: flag(flags, "timeless-due-at"),
     snoozed_until: flag(flags, "snoozed-until"),
