@@ -49,12 +49,17 @@ bash skills/godspeed/scripts/godspeed-cli.sh tasks list --status incomplete
 # Create a task
 bash skills/godspeed/scripts/godspeed-cli.sh tasks create --title "Buy milk"
 
+# Create with markdown notes (use \n for newlines)
+bash skills/godspeed/scripts/godspeed-cli.sh tasks create --title "Plan" --notes "## Goal\nShip v2\n\n## Tasks\n- Fix bugs\n- Deploy"
+
 # Complete a task
 bash skills/godspeed/scripts/godspeed-cli.sh tasks update <task_id> --complete true
 
 # List all lists
 bash skills/godspeed/scripts/godspeed-cli.sh lists list
 ```
+
+> **Note:** Use `\n` in `--notes` for newlines. The CLI converts them to real line breaks, so markdown formatting (headings, lists, etc.) renders correctly in the Godspeed app.
 
 ## Output format
 
@@ -64,6 +69,15 @@ All commands output JSON. Errors are written to stderr as JSON with an `error` f
 
 - List tasks/lists: ≤10 req/min, ≤200/hr
 - Create/update tasks: ≤60 req/min, ≤1000/hr
+
+## Installing / Updating
+
+```bash
+# Install or update (same command)
+curl -fsSL https://raw.githubusercontent.com/Lag0/godspeed-sdk/master/install.sh | bash
+```
+
+The installer auto-detects Bun or Node.js 18+ and handles updates automatically.
 
 ## Environment variables
 

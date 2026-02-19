@@ -15,7 +15,17 @@ The installer auto-detects **Bun** or **Node.js 18+** — no need to install a s
 curl -fsSL https://raw.githubusercontent.com/Lag0/godspeed-sdk/master/install.sh | bash
 ```
 
-Or build from source:
+### Updating
+
+Run the **same command** to update to the latest version:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Lag0/godspeed-sdk/master/install.sh | bash
+```
+
+The installer auto-detects existing installations and pulls the latest changes.
+
+### From Source
 
 ```bash
 git clone https://github.com/Lag0/godspeed-sdk.git
@@ -60,6 +70,9 @@ godspeed tasks list --status incomplete
 
 # Create a task
 godspeed tasks create --title "Buy milk" --label-names "Personal"
+
+# Create with multiline markdown notes (\n = newline)
+godspeed tasks create --title "Sprint Plan" --notes "## Goals\n- Ship v2\n- Fix bugs\n\n## Notes\nDue Friday"
 
 # Get a task
 godspeed tasks get <task_id>

@@ -283,13 +283,30 @@ ensure_repo() {
 
     if [[ -d "${INSTALL_DIR}/.git" ]]; then
         ui_info "Updating existing installation..."
-        if [[ -z "$(git -C "${INSTALL_DIR}" status --porcelain 2>/dev/null || true)" ]]; then
-            git -C "${INSTALL_DIR}" pull --ff-only --quiet || {
-                ui_warn "Git pull failed; continuing with existing version"
-            }
-        else
-            ui_warn "Local changes detected; skipping git pull"
+
+        # Reset build artifacts that may be tracked / modified
+        git -C "${INSTALL_DIR}" checkout -- dist/ 2>/dev/null || true
+        git -C "${INSTALL_DIR}" checkout -- bun.lockb 2>/dev/null || true
+        git -C "${INSTALL_DIR}" checkout -- package-lock.json 2>/dev/null || true
+
+        # Stash any remaining local changes so pull can proceed
+        local stashed=0
+        if [[ -n "$(git -C "${INSTALL_DIR}" status --porcelain 2>/dev/null || true)" ]]; then
+            ui_info "Stashing local changes..."
+            git -C "${INSTALL_DIR}" stash --quiet 2>/dev/null && stashed=1
         fi
+
+        git -C "${INSTALL_DIR}" pull --ff-only --quiet || {
+            ui_warn "Git pull failed; continuing with existing version"
+        }
+
+        # Restore stashed changes (if any)
+        if [[ "$stashed" -eq 1 ]]; then
+            git -C "${INSTALL_DIR}" stash pop --quiet 2>/dev/null || {
+                ui_warn "Could not restore local changes (stash pop failed)"
+            }
+        fi
+
         ui_success "Repository updated"
     else
         ui_info "Cloning godspeed-sdk..."

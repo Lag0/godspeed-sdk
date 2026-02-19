@@ -27,6 +27,9 @@ godspeed tasks create \
   --notes "Vitamin D" \
   --due-at "2024-03-30T01:21:22Z" \
   --label-names "Dairy,Urgent"
+
+# Multiline markdown notes (use \n for newlines)
+godspeed tasks create --title "Sprint" --notes "## Goal\nShip v2\n\n## Tasks\n- Fix bugs"
 ```
 
 **Create options:**
