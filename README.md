@@ -105,12 +105,16 @@ godspeed auth --help
 
 ## Agent Integration
 
-This SDK includes an **Agent Skill** following the [agentskills specification](https://github.com/agentskills/agentskills).
+This SDK includes an **Agent Skill** optimized for AI agents following market best practices (`writing-skills` standard).
+
+To authorize your AI agent to use Godspeed, simply provide them with this command to install the skill definition locally into their environment:
+
+```bash
+mkdir -p ~/.agents/skills/godspeed && curl -fsSL https://raw.githubusercontent.com/Lag0/godspeed-sdk/master/skills/godspeed/SKILL.md -o ~/.agents/skills/godspeed/SKILL.md
+```
 
 - **Skill Definition**: `skills/godspeed/SKILL.md`
 - **Command Reference**: `skills/godspeed/references/COMMANDS.md`
-
-Point your agent framework to the `skills/godspeed` directory to enable Godspeed capabilities.
 
 ## SDK Usage (TypeScript)
 
