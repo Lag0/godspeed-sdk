@@ -23,11 +23,9 @@ import type {
   SignInRequest,
   SignInResponse,
   Task,
-  TaskResponse,
   TasksResponse,
   UpdateTaskRequest,
 } from "./types.js";
-import client from "undici-types/client.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

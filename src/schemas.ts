@@ -34,14 +34,23 @@ export const TaskLocationSchema = z.enum(["start", "end"]);
 
 export const TaskStatusSchema = z.enum(["incomplete", "complete"]);
 
-export const TaskSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  notes: z.string().nullable().optional(),
-  list_id: z.string().nullable().optional(),
-  is_complete: z.boolean().optional().default(false),
-  is_cleared: z.boolean().optional(),
-  due_at: z.string().nullable().optional(),
+export const TaskSchema = z.preprocess(
+  (val: any) => {
+    if (!val || typeof val !== "object") return val;
+    return {
+      ...val,
+      is_complete: val.is_complete ?? (val.completed_at != null),
+      is_cleared: val.is_cleared ?? (val.cleared_at != null),
+    };
+  },
+  z.object({
+    id: z.string(),
+    title: z.string(),
+    notes: z.string().nullable().optional(),
+    list_id: z.string().nullable().optional(),
+    is_complete: z.boolean().optional().default(false),
+    is_cleared: z.boolean().optional().default(false),
+    due_at: z.string().nullable().optional(),
   timeless_due_at: z.string().nullable().optional(),
   starts_at: z.string().nullable().optional(),
   timeless_starts_at: z.string().nullable().optional(),
@@ -52,7 +61,7 @@ export const TaskSchema = z.object({
   metadata: MetadataSchema.optional(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
-});
+}));
 
 export const CreateTaskRequestSchema = z
   .object({
